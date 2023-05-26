@@ -1,0 +1,25 @@
+{
+	"name": "Test_trigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "Pipeline_testdbtojson",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-05-25T20:30:00Z",
+				"endTime": "2023-05-26T20:27:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
