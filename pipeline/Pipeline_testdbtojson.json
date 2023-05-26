@@ -35,6 +35,7 @@
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings",
 							"maxConcurrentConnections": 5,
+							"copyBehavior": "PreserveHierarchy",
 							"blockSizeInMB": 50
 						},
 						"formatSettings": {
