@@ -1,0 +1,9 @@
+{
+	"name": "TechreoDF",
+	"location": "southcentralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "803f6f3e-a521-46bc-af8e-ee93f4299928",
+		"tenantId": "9470fa27-932f-4ad6-8a82-d9710b5d77d1"
+	}
+}
