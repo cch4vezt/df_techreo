@@ -27,7 +27,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlMISource",
-						"sqlReaderQuery": "/****** Script for SelectTopNRows command from SSMS  ******/\r\nSELECT TOP (1000) [Id]\r\n      ,[FechaHoraEventoUTC]\r\n      ,[Aplicativo]\r\n      ,[CodigoRastreo]\r\n      ,[RequestId]\r\n      ,[Severidad]\r\n      ,[Mensaje]\r\n      ,[Propiedades]\r\n      ,[Error]\r\n      ,[FechaHoraRegistro]\r\n  FROM [Cmn_Log].[dbo].[logt_LogEstructurado]",
+						"sqlReaderQuery": "SELECT [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\n  FROM [Cmn_Log].[dbo].[logt_LogEstructurado]\n",
 						"partitionOption": "None"
 					},
 					"sink": {
