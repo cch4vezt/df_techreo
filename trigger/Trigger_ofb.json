@@ -1,0 +1,35 @@
+{
+	"name": "Trigger_ofb",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pipeline_logEstructurado",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"windowStart": {
+						"type": "Expression",
+						"value": "@{addhours(trigger().scheduledTime, -1)}"
+					},
+					"windowEnd": {
+						"type": "Expression",
+						"value": "@trigger().scheduledTime"
+					}
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 1,
+				"startTime": "2023-06-03T10:30:00Z",
+				"endTime": "2023-06-04T16:04:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}
