@@ -1,0 +1,400 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "TechreoDF"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"linkedService_azurestoact_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService_azurestoact'"
+		},
+		"techreoprod_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'techreoprod'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://camedatalake.dfs.core.windows.net/"
+		},
+		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@{addhours(trigger().scheduledTime, -1)}"
+		},
+		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd": {
+			"type": "string",
+			"defaultValue": "@trigger().scheduledTime"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_logEstructurado')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_ofb",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "."
+							},
+							{
+								"name": "Destination",
+								"value": "df-container/@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}/log_Estructurado"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "SqlMISource",
+								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 10\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings",
+									"maxConcurrentConnections": 10,
+									"blockSizeInMB": 100
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Id",
+											"type": "Int64"
+										},
+										"sink": {
+											"path": "$['Id']"
+										}
+									},
+									{
+										"source": {
+											"name": "FechaHoraEventoUTC",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['FechaHoraEventoUTC']"
+										}
+									},
+									{
+										"source": {
+											"name": "Aplicativo",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Aplicativo']"
+										}
+									},
+									{
+										"source": {
+											"name": "CodigoRastreo",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['CodigoRastreo']"
+										}
+									},
+									{
+										"source": {
+											"name": "RequestId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['RequestId']"
+										}
+									},
+									{
+										"source": {
+											"name": "Severidad",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Severidad']"
+										}
+									},
+									{
+										"source": {
+											"name": "Mensaje",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Mensaje']"
+										}
+									},
+									{
+										"source": {
+											"name": "Propiedades",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Propiedades']"
+										}
+									},
+									{
+										"source": {
+											"name": "Error",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Error']"
+										}
+									},
+									{
+										"source": {
+											"name": "FechaHoraRegistro",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['FechaHoraRegistro']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_ofb",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_ofb",
+								"type": "DatasetReference",
+								"parameters": {
+									"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"windowStart": {
+						"type": "String"
+					},
+					"windowEnd": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_ofb')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_ofb')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_ofb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedService_azurestoact",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"cw_folderPath": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "log_Estructurado",
+						"folderPath": {
+							"value": "@dataset().cw_folderPath",
+							"type": "Expression"
+						},
+						"container": "df-container"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedService_azurestoact')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_ofb')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "techreoprod",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlMITable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "FechaHoraEventoUTC",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Aplicativo",
+						"type": "varchar"
+					},
+					{
+						"name": "CodigoRastreo",
+						"type": "varchar"
+					},
+					{
+						"name": "RequestId",
+						"type": "varchar"
+					},
+					{
+						"name": "Severidad",
+						"type": "varchar"
+					},
+					{
+						"name": "Mensaje",
+						"type": "varchar"
+					},
+					{
+						"name": "Propiedades",
+						"type": "varchar"
+					},
+					{
+						"name": "Error",
+						"type": "varchar"
+					},
+					{
+						"name": "FechaHoraRegistro",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/techreoprod')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/linkedService_azurestoact')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('linkedService_azurestoact_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/techreoprod')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlMI",
+				"typeProperties": {
+					"connectionString": "[parameters('techreoprod_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger_ofb')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pipeline_logEstructurado",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"windowStart": {
+								"type": "Expression",
+								"value": "[parameters('Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart')]"
+							},
+							"windowEnd": {
+								"type": "Expression",
+								"value": "[parameters('Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd')]"
+							}
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 1,
+						"startTime": "2023-06-03T10:30:00Z",
+						"endTime": "2023-06-04T16:04:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipeline_logEstructurado')]"
+			]
+		}
+	]
+}

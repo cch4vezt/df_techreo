@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "TechreoDF"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"linkedService_azurestoact_connectionString": {
+			"value": ""
+		},
+		"techreoprod_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://camedatalake.dfs.core.windows.net/"
+		},
+		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart": {
+			"value": "@{addhours(trigger().scheduledTime, -1)}"
+		},
+		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd": {
+			"value": "@trigger().scheduledTime"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
