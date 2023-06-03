@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy_xu7",
+				"name": "log_Estructurado_copyData",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
