@@ -26,7 +26,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlMISource",
-						"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]",
+						"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 1\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc\n",
 						"partitionOption": "None"
 					},
 					"sink": {
