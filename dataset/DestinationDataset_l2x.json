@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "log_Estructurado",
+				"fileName": "log_Estructurado_alldata",
 				"container": "output-df"
 			}
 		},
