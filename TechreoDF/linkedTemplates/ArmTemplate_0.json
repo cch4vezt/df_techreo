@@ -22,14 +22,6 @@
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://camedatalake.dfs.core.windows.net/"
-		},
-		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart": {
-			"type": "string",
-			"defaultValue": "@{addhours(trigger().scheduledTime, -1)}"
-		},
-		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd": {
-			"type": "string",
-			"defaultValue": "@trigger().scheduledTime"
 		}
 	},
 	"variables": {
@@ -80,7 +72,28 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset_ofb')]",
+			"name": "[concat(parameters('factoryName'), '/Trigger_ofb')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 1,
+						"startTime": "2023-06-03T10:10:00Z",
+						"endTime": "2023-06-04T16:04:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_l2x')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -88,22 +101,13 @@
 					"referenceName": "linkedService_azurestoact",
 					"type": "LinkedServiceReference"
 				},
-				"parameters": {
-					"cw_folderPath": {
-						"type": "String"
-					}
-				},
 				"annotations": [],
 				"type": "Json",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"fileName": "log_Estructurado",
-						"folderPath": {
-							"value": "@dataset().cw_folderPath",
-							"type": "Expression"
-						},
-						"container": "df-container"
+						"container": "output-df"
 					}
 				},
 				"schema": {}
@@ -113,7 +117,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_ofb')]",
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_l2x')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -183,7 +187,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy_ofb",
+						"name": "Copy_l2x",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -200,13 +204,13 @@
 							},
 							{
 								"name": "Destination",
-								"value": "df-container/@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}/log_Estructurado"
+								"value": "output-df//log_Estructurado"
 							}
 						],
 						"typeProperties": {
 							"source": {
 								"type": "SqlMISource",
-								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 10\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc",
+								"sqlReaderQuery": "select [Id]\r\n      ,[FechaHoraEventoUTC]\r\n      ,[Aplicativo]\r\n      ,[CodigoRastreo]\r\n      ,[RequestId]\r\n      ,[Severidad]\r\n      ,[Mensaje]\r\n      ,[Propiedades]\r\n      ,[Error]\r\n      ,[FechaHoraRegistro]\r\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\r\nwhere [FechaHoraRegistro] between (\r\n\tselect top 1 [FechaHoraRegistro]\r\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\r\n\t(select dateadd(second, 28165, (select top 1 [FechaHoraRegistro]\r\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]))\r\n\t)\r\norder by [Id] asc",
 								"partitionOption": "None"
 							},
 							"sink": {
@@ -321,18 +325,16 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SourceDataset_ofb",
+								"referenceName": "SourceDataset_l2x",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "DestinationDataset_ofb",
+								"referenceName": "DestinationDataset_l2x",
 								"type": "DatasetReference",
-								"parameters": {
-									"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}"
-								}
+								"parameters": {}
 							}
 						]
 					}
@@ -341,59 +343,11 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
-				"parameters": {
-					"windowStart": {
-						"type": "String"
-					},
-					"windowEnd": {
-						"type": "String"
-					}
-				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SourceDataset_ofb')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset_ofb')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Trigger_ofb')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pipeline_logEstructurado",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"windowStart": {
-								"type": "Expression",
-								"value": "[parameters('Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart')]"
-							},
-							"windowEnd": {
-								"type": "Expression",
-								"value": "[parameters('Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd')]"
-							}
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Hour",
-						"interval": 1,
-						"startTime": "2023-06-03T10:10:00Z",
-						"endTime": "2023-06-04T16:04:00Z",
-						"timeZone": "UTC"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pipeline_logEstructurado')]"
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_l2x')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_l2x')]"
 			]
 		}
 	]

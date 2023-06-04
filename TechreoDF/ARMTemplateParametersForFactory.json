@@ -16,12 +16,6 @@
 		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"value": "https://camedatalake.dfs.core.windows.net/"
-		},
-		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowStart": {
-			"value": "@{addhours(trigger().scheduledTime, -1)}"
-		},
-		"Trigger_ofb_properties_pipeline_logEstructurado_parameters_windowEnd": {
-			"value": "@trigger().scheduledTime"
 		}
 	}
 }
