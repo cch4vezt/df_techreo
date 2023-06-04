@@ -455,6 +455,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"fileName": "dataLogEstructurado",
 						"folderPath": {
 							"value": "@dataset().cw_folderPath",
 							"type": "Expression"
