@@ -1,0 +1,58 @@
+{
+	"name": "SourceDataset_l2x",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "techreoprod",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlMITable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "FechaHoraEventoUTC",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Aplicativo",
+				"type": "varchar"
+			},
+			{
+				"name": "CodigoRastreo",
+				"type": "varchar"
+			},
+			{
+				"name": "RequestId",
+				"type": "varchar"
+			},
+			{
+				"name": "Severidad",
+				"type": "varchar"
+			},
+			{
+				"name": "Mensaje",
+				"type": "varchar"
+			},
+			{
+				"name": "Propiedades",
+				"type": "varchar"
+			},
+			{
+				"name": "Error",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaHoraRegistro",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		]
+	}
+}
