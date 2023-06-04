@@ -1,0 +1,19 @@
+{
+	"name": "DestinationDataset_l2x",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_azurestoact",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "log_Estructurado",
+				"container": "output-df"
+			}
+		},
+		"schema": {}
+	}
+}
