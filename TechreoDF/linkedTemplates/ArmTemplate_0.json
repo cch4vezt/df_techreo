@@ -22,6 +22,14 @@
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://camedatalake.dfs.core.windows.net/"
+		},
+		"Trigger_x1s_properties_Pipeline_logEstructurado_depuracion_parameters_windowStart": {
+			"type": "string",
+			"defaultValue": "@{addhours(trigger().scheduledTime, -1)}"
+		},
+		"Trigger_x1s_properties_Pipeline_logEstructurado_depuracion_parameters_windowEnd": {
+			"type": "string",
+			"defaultValue": "@trigger().scheduledTime"
 		}
 	},
 	"variables": {
@@ -117,6 +125,38 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_x1s')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedService_azurestoact",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"cw_folderPath": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().cw_folderPath",
+							"type": "Expression"
+						},
+						"container": "output-df"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedService_azurestoact')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_l2x')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -181,6 +221,277 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_x1s')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "techreoprod",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlMITable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "FechaHoraEventoUTC",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Aplicativo",
+						"type": "varchar"
+					},
+					{
+						"name": "CodigoRastreo",
+						"type": "varchar"
+					},
+					{
+						"name": "RequestId",
+						"type": "varchar"
+					},
+					{
+						"name": "Severidad",
+						"type": "varchar"
+					},
+					{
+						"name": "Mensaje",
+						"type": "varchar"
+					},
+					{
+						"name": "Propiedades",
+						"type": "varchar"
+					},
+					{
+						"name": "Error",
+						"type": "varchar"
+					},
+					{
+						"name": "FechaHoraRegistro",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/techreoprod')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_logEstructurado_depuracion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Depuración de información por día",
+				"activities": [
+					{
+						"name": "Copy_x1s",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "."
+							},
+							{
+								"name": "Destination",
+								"value": "output-df/@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}@{formatDateTime(pipeline().parameters.windowStart,'mm')}{seconds}/"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "SqlMISource",
+								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 1\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Id",
+											"type": "Int64"
+										},
+										"sink": {
+											"path": "$['Id']"
+										}
+									},
+									{
+										"source": {
+											"name": "FechaHoraEventoUTC",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['FechaHoraEventoUTC']"
+										}
+									},
+									{
+										"source": {
+											"name": "Aplicativo",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Aplicativo']"
+										}
+									},
+									{
+										"source": {
+											"name": "CodigoRastreo",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['CodigoRastreo']"
+										}
+									},
+									{
+										"source": {
+											"name": "RequestId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['RequestId']"
+										}
+									},
+									{
+										"source": {
+											"name": "Severidad",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Severidad']"
+										}
+									},
+									{
+										"source": {
+											"name": "Mensaje",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Mensaje']"
+										}
+									},
+									{
+										"source": {
+											"name": "Propiedades",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Propiedades']"
+										}
+									},
+									{
+										"source": {
+											"name": "Error",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Error']"
+										}
+									},
+									{
+										"source": {
+											"name": "FechaHoraRegistro",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['FechaHoraRegistro']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_x1s",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_x1s",
+								"type": "DatasetReference",
+								"parameters": {
+									"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}@{formatDateTime(pipeline().parameters.windowStart,'mm')}{seconds}"
+								}
+							}
+						]
+					},
+					{
+						"name": "sp_depurar_data",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "Copy_x1s",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[deleteRowsLogEstructuradoPerDay]"
+						},
+						"linkedServiceName": {
+							"referenceName": "techreoprod",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"windowStart": {
+						"type": "String"
+					},
+					"windowEnd": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_x1s')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_x1s')]",
+				"[concat(variables('factoryId'), '/linkedServices/techreoprod')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pipeline_logEstructurado')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -210,14 +521,13 @@
 						"typeProperties": {
 							"source": {
 								"type": "SqlMISource",
-								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]",
+								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 1\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc\n",
 								"partitionOption": "None"
 							},
 							"sink": {
 								"type": "JsonSink",
 								"storeSettings": {
 									"type": "AzureBlobStorageWriteSettings",
-									"maxConcurrentConnections": 10,
 									"blockSizeInMB": 100
 								},
 								"formatSettings": {
@@ -348,6 +658,45 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SourceDataset_l2x')]",
 				"[concat(variables('factoryId'), '/datasets/DestinationDataset_l2x')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger_x1s')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Pipeline_logEstructurado_depuracion",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"windowStart": {
+								"type": "Expression",
+								"value": "[parameters('Trigger_x1s_properties_Pipeline_logEstructurado_depuracion_parameters_windowStart')]"
+							},
+							"windowEnd": {
+								"type": "Expression",
+								"value": "[parameters('Trigger_x1s_properties_Pipeline_logEstructurado_depuracion_parameters_windowEnd')]"
+							}
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 1,
+						"startTime": "2023-06-03T23:00:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/Pipeline_logEstructurado_depuracion')]"
 			]
 		}
 	]
