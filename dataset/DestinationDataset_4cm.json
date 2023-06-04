@@ -1,0 +1,19 @@
+{
+	"name": "DestinationDataset_4cm",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_azurestoact",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "logt_ProvidersLog_dic2022",
+				"container": "output-df"
+			}
+		},
+		"schema": {}
+	}
+}
