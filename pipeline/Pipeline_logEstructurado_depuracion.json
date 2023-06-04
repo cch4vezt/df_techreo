@@ -153,6 +153,33 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "sp_depurar_data",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy_x1s",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[deleteRowsLogEstructuradoPerDay]"
+				},
+				"linkedServiceName": {
+					"referenceName": "techreoprod",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
