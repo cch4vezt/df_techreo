@@ -33,7 +33,6 @@
 						"type": "JsonSink",
 						"storeSettings": {
 							"type": "AzureBlobStorageWriteSettings",
-							"maxConcurrentConnections": 10,
 							"blockSizeInMB": 100
 						},
 						"formatSettings": {
