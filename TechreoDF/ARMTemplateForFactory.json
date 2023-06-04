@@ -244,13 +244,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline_logEstructurado')]",
+			"name": "[concat(parameters('factoryName'), '/Pipeline_logt_ProvidersLog')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "Pipeline obtener datos diciembre 2022 - solo se ejecuta una vez para tener 2023 a las 00:00 hrs.",
 				"activities": [
 					{
-						"name": "Copy_l2x",
+						"name": "Copy_4cm",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -267,20 +268,19 @@
 							},
 							{
 								"name": "Destination",
-								"value": "output-df//log_Estructurado"
+								"value": "output-df//logt_ProvidersLog_dic2022"
 							}
 						],
 						"typeProperties": {
 							"source": {
 								"type": "SqlMISource",
-								"sqlReaderQuery": "select [Id]\n      ,[FechaHoraEventoUTC]\n      ,[Aplicativo]\n      ,[CodigoRastreo]\n      ,[RequestId]\n      ,[Severidad]\n      ,[Mensaje]\n      ,[Propiedades]\n      ,[Error]\n      ,[FechaHoraRegistro]\nfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\nwhere [FechaHoraRegistro] between (\n\tselect top 1 [FechaHoraRegistro]\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]) and\n\t(select top 1 [FechaHoraRegistro] + 1\n\tfrom [Cmn_Log].[dbo].[logt_LogEstructurado]\n\t)\norder by [Id] asc\n",
+								"sqlReaderQuery": "SELECT [Id]\r\n      ,[Service]\r\n      ,[TransactionId]\r\n      ,[Provider]\r\n      ,[Method]\r\n      ,[Request]\r\n      ,[Response]\r\n      ,[UserCreationId]\r\n      ,[CreationDate]\r\n      ,[UserLastModifiedId]\r\n      ,[DateLastModificationId]\r\n      ,[IsActive]\r\n      ,[Url_t]\r\n      ,[Headers_t]\r\n  FROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n  WHERE [CreationDate] between (\r\n\tselect top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog])\r\n\r\n\tand\r\n\r\n\t(select dateadd(second, 211712, (select top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog])))",
 								"partitionOption": "None"
 							},
 							"sink": {
 								"type": "JsonSink",
 								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings",
-									"blockSizeInMB": 100
+									"type": "AzureBlobStorageWriteSettings"
 								},
 								"formatSettings": {
 									"type": "JsonWriteSettings",
@@ -303,83 +303,119 @@
 									},
 									{
 										"source": {
-											"name": "FechaHoraEventoUTC",
+											"name": "Service",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Service']"
+										}
+									},
+									{
+										"source": {
+											"name": "TransactionId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['TransactionId']"
+										}
+									},
+									{
+										"source": {
+											"name": "Provider",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Provider']"
+										}
+									},
+									{
+										"source": {
+											"name": "Method",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Method']"
+										}
+									},
+									{
+										"source": {
+											"name": "Request",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Request']"
+										}
+									},
+									{
+										"source": {
+											"name": "Response",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Response']"
+										}
+									},
+									{
+										"source": {
+											"name": "UserCreationId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['UserCreationId']"
+										}
+									},
+									{
+										"source": {
+											"name": "CreationDate",
 											"type": "DateTime"
 										},
 										"sink": {
-											"path": "$['FechaHoraEventoUTC']"
+											"path": "$['CreationDate']"
 										}
 									},
 									{
 										"source": {
-											"name": "Aplicativo",
+											"name": "UserLastModifiedId",
 											"type": "String"
 										},
 										"sink": {
-											"path": "$['Aplicativo']"
+											"path": "$['UserLastModifiedId']"
 										}
 									},
 									{
 										"source": {
-											"name": "CodigoRastreo",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['CodigoRastreo']"
-										}
-									},
-									{
-										"source": {
-											"name": "RequestId",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['RequestId']"
-										}
-									},
-									{
-										"source": {
-											"name": "Severidad",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['Severidad']"
-										}
-									},
-									{
-										"source": {
-											"name": "Mensaje",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['Mensaje']"
-										}
-									},
-									{
-										"source": {
-											"name": "Propiedades",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['Propiedades']"
-										}
-									},
-									{
-										"source": {
-											"name": "Error",
-											"type": "String"
-										},
-										"sink": {
-											"path": "$['Error']"
-										}
-									},
-									{
-										"source": {
-											"name": "FechaHoraRegistro",
+											"name": "DateLastModificationId",
 											"type": "DateTime"
 										},
 										"sink": {
-											"path": "$['FechaHoraRegistro']"
+											"path": "$['DateLastModificationId']"
+										}
+									},
+									{
+										"source": {
+											"name": "IsActive",
+											"type": "Boolean"
+										},
+										"sink": {
+											"path": "$['IsActive']"
+										}
+									},
+									{
+										"source": {
+											"name": "Url_t",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Url_t']"
+										}
+									},
+									{
+										"source": {
+											"name": "Headers_t",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Headers_t']"
 										}
 									}
 								]
@@ -387,14 +423,14 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SourceDataset_l2x",
+								"referenceName": "SourceDataset_4cm",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "DestinationDataset_l2x",
+								"referenceName": "DestinationDataset_4cm",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -408,12 +444,12 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SourceDataset_l2x')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset_l2x')]"
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_4cm')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_4cm')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DestinationDataset_l2x')]",
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_4cm')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -426,7 +462,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "log_Estructurado_alldata",
+						"fileName": "logt_ProvidersLog_dic2022",
 						"container": "output-df"
 					}
 				},
@@ -470,7 +506,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SourceDataset_l2x')]",
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_4cm')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -487,44 +523,60 @@
 						"precision": 19
 					},
 					{
-						"name": "FechaHoraEventoUTC",
+						"name": "Service",
+						"type": "varchar"
+					},
+					{
+						"name": "TransactionId",
+						"type": "varchar"
+					},
+					{
+						"name": "Provider",
+						"type": "varchar"
+					},
+					{
+						"name": "Method",
+						"type": "varchar"
+					},
+					{
+						"name": "Request",
+						"type": "varchar"
+					},
+					{
+						"name": "Response",
+						"type": "varchar"
+					},
+					{
+						"name": "UserCreationId",
+						"type": "varchar"
+					},
+					{
+						"name": "CreationDate",
 						"type": "datetime",
 						"precision": 23,
 						"scale": 3
 					},
 					{
-						"name": "Aplicativo",
+						"name": "UserLastModifiedId",
 						"type": "varchar"
 					},
 					{
-						"name": "CodigoRastreo",
-						"type": "varchar"
-					},
-					{
-						"name": "RequestId",
-						"type": "varchar"
-					},
-					{
-						"name": "Severidad",
-						"type": "varchar"
-					},
-					{
-						"name": "Mensaje",
-						"type": "varchar"
-					},
-					{
-						"name": "Propiedades",
-						"type": "varchar"
-					},
-					{
-						"name": "Error",
-						"type": "varchar"
-					},
-					{
-						"name": "FechaHoraRegistro",
+						"name": "DateLastModificationId",
 						"type": "datetime",
 						"precision": 23,
 						"scale": 3
+					},
+					{
+						"name": "IsActive",
+						"type": "bit"
+					},
+					{
+						"name": "Url_t",
+						"type": "varchar"
+					},
+					{
+						"name": "Headers_t",
+						"type": "varchar"
 					}
 				],
 				"typeProperties": {}
