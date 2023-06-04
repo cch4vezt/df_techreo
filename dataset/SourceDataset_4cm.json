@@ -1,0 +1,74 @@
+{
+	"name": "SourceDataset_4cm",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "techreoprod",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlMITable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Service",
+				"type": "varchar"
+			},
+			{
+				"name": "TransactionId",
+				"type": "varchar"
+			},
+			{
+				"name": "Provider",
+				"type": "varchar"
+			},
+			{
+				"name": "Method",
+				"type": "varchar"
+			},
+			{
+				"name": "Request",
+				"type": "varchar"
+			},
+			{
+				"name": "Response",
+				"type": "varchar"
+			},
+			{
+				"name": "UserCreationId",
+				"type": "varchar"
+			},
+			{
+				"name": "CreationDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "UserLastModifiedId",
+				"type": "varchar"
+			},
+			{
+				"name": "DateLastModificationId",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "IsActive",
+				"type": "bit"
+			},
+			{
+				"name": "Url_t",
+				"type": "varchar"
+			},
+			{
+				"name": "Headers_t",
+				"type": "varchar"
+			}
+		]
+	}
+}

@@ -1,0 +1,193 @@
+{
+	"name": "Pipeline_logt_ProvidersLog",
+	"properties": {
+		"description": "Pipeline obtener datos diciembre 2022 - solo se ejecuta una vez para tener 2023 a las 00:00 hrs.",
+		"activities": [
+			{
+				"name": "Copy_4cm",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "."
+					},
+					{
+						"name": "Destination",
+						"value": "output-df//logt_ProvidersLog_dic2022"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "SqlMISource",
+						"sqlReaderQuery": "SELECT [Id]\r\n      ,[Service]\r\n      ,[TransactionId]\r\n      ,[Provider]\r\n      ,[Method]\r\n      ,[Request]\r\n      ,[Response]\r\n      ,[UserCreationId]\r\n      ,[CreationDate]\r\n      ,[UserLastModifiedId]\r\n      ,[DateLastModificationId]\r\n      ,[IsActive]\r\n      ,[Url_t]\r\n      ,[Headers_t]\r\n  FROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n  WHERE [CreationDate] between (\r\n\tselect top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog])\r\n\r\n\tand\r\n\r\n\t(select dateadd(second, 211712, (select top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog])))",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings",
+							"filePattern": "setOfObjects"
+						}
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Id",
+									"type": "Int64"
+								},
+								"sink": {
+									"path": "$['Id']"
+								}
+							},
+							{
+								"source": {
+									"name": "Service",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Service']"
+								}
+							},
+							{
+								"source": {
+									"name": "TransactionId",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['TransactionId']"
+								}
+							},
+							{
+								"source": {
+									"name": "Provider",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Provider']"
+								}
+							},
+							{
+								"source": {
+									"name": "Method",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Method']"
+								}
+							},
+							{
+								"source": {
+									"name": "Request",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Request']"
+								}
+							},
+							{
+								"source": {
+									"name": "Response",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Response']"
+								}
+							},
+							{
+								"source": {
+									"name": "UserCreationId",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['UserCreationId']"
+								}
+							},
+							{
+								"source": {
+									"name": "CreationDate",
+									"type": "DateTime"
+								},
+								"sink": {
+									"path": "$['CreationDate']"
+								}
+							},
+							{
+								"source": {
+									"name": "UserLastModifiedId",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['UserLastModifiedId']"
+								}
+							},
+							{
+								"source": {
+									"name": "DateLastModificationId",
+									"type": "DateTime"
+								},
+								"sink": {
+									"path": "$['DateLastModificationId']"
+								}
+							},
+							{
+								"source": {
+									"name": "IsActive",
+									"type": "Boolean"
+								},
+								"sink": {
+									"path": "$['IsActive']"
+								}
+							},
+							{
+								"source": {
+									"name": "Url_t",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Url_t']"
+								}
+							},
+							{
+								"source": {
+									"name": "Headers_t",
+									"type": "String"
+								},
+								"sink": {
+									"path": "$['Headers_t']"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_4cm",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_4cm",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
