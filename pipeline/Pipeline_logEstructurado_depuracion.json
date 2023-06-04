@@ -149,7 +149,7 @@
 						"referenceName": "DestinationDataset_x1s",
 						"type": "DatasetReference",
 						"parameters": {
-							"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}@{formatDateTime(pipeline().parameters.windowStart,'mm')}{seconds}"
+							"cw_folderPath": "@{formatDateTime(pipeline().parameters.windowStart,'yy')}@{formatDateTime(pipeline().parameters.windowStart,'MM')}@{formatDateTime(pipeline().parameters.windowStart,'dd')}@{formatDateTime(pipeline().parameters.windowStart,'HH')}@{formatDateTime(pipeline().parameters.windowStart,'mm')}"
 						}
 					}
 				]
