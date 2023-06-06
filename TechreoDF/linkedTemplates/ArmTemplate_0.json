@@ -125,6 +125,30 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_q2w')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedService_azurestoact",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "logt_ProvidersLog_01012023.json",
+						"container": "output-df"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedService_azurestoact')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/DestinationDataset_x1s')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -159,6 +183,86 @@
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SourceDataset_4cm')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "techreoprod",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlMITable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Service",
+						"type": "varchar"
+					},
+					{
+						"name": "TransactionId",
+						"type": "varchar"
+					},
+					{
+						"name": "Provider",
+						"type": "varchar"
+					},
+					{
+						"name": "Method",
+						"type": "varchar"
+					},
+					{
+						"name": "Request",
+						"type": "varchar"
+					},
+					{
+						"name": "Response",
+						"type": "varchar"
+					},
+					{
+						"name": "UserCreationId",
+						"type": "varchar"
+					},
+					{
+						"name": "CreationDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "UserLastModifiedId",
+						"type": "varchar"
+					},
+					{
+						"name": "DateLastModificationId",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "IsActive",
+						"type": "bit"
+					},
+					{
+						"name": "Url_t",
+						"type": "varchar"
+					},
+					{
+						"name": "Headers_t",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/techreoprod')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_q2w')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -711,6 +815,211 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SourceDataset_4cm')]",
 				"[concat(variables('factoryId'), '/datasets/DestinationDataset_4cm')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_logt_ProvidersLog_manual')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Para generar json por día de la bd [logt_ProvidersLog] de forma manual, hay que cambiar la fecha.",
+				"activities": [
+					{
+						"name": "Copy_q2w",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "."
+							},
+							{
+								"name": "Destination",
+								"value": "output-df//logt_ProvidersLog_01012023.json"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "SqlMISource",
+								"sqlReaderQuery": "SELECT [Id]\r\n      ,[Service]\r\n      ,[TransactionId]\r\n      ,[Provider]\r\n      ,[Method]\r\n      ,[Request]\r\n      ,[Response]\r\n      ,[UserCreationId]\r\n      ,[CreationDate]\r\n      ,[UserLastModifiedId]\r\n      ,[DateLastModificationId]\r\n      ,[IsActive]\r\n      ,[Url_t]\r\n      ,[Headers_t]\r\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\nwhere [CreationDate] between \r\n\t(select top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n\twhere id = 143451)\r\nAND\r\n\t(select dateadd(second, 86376, (select [CreationDate]\r\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n\twhere id = 143451)))\r\n",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Id",
+											"type": "Int64"
+										},
+										"sink": {
+											"path": "$['Id']"
+										}
+									},
+									{
+										"source": {
+											"name": "Service",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Service']"
+										}
+									},
+									{
+										"source": {
+											"name": "TransactionId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['TransactionId']"
+										}
+									},
+									{
+										"source": {
+											"name": "Provider",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Provider']"
+										}
+									},
+									{
+										"source": {
+											"name": "Method",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Method']"
+										}
+									},
+									{
+										"source": {
+											"name": "Request",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Request']"
+										}
+									},
+									{
+										"source": {
+											"name": "Response",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Response']"
+										}
+									},
+									{
+										"source": {
+											"name": "UserCreationId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['UserCreationId']"
+										}
+									},
+									{
+										"source": {
+											"name": "CreationDate",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['CreationDate']"
+										}
+									},
+									{
+										"source": {
+											"name": "UserLastModifiedId",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['UserLastModifiedId']"
+										}
+									},
+									{
+										"source": {
+											"name": "DateLastModificationId",
+											"type": "DateTime"
+										},
+										"sink": {
+											"path": "$['DateLastModificationId']"
+										}
+									},
+									{
+										"source": {
+											"name": "IsActive",
+											"type": "Boolean"
+										},
+										"sink": {
+											"path": "$['IsActive']"
+										}
+									},
+									{
+										"source": {
+											"name": "Url_t",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Url_t']"
+										}
+									},
+									{
+										"source": {
+											"name": "Headers_t",
+											"type": "String"
+										},
+										"sink": {
+											"path": "$['Headers_t']"
+										}
+									}
+								]
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_q2w",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_q2w",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_q2w')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_q2w')]"
 			]
 		},
 		{
