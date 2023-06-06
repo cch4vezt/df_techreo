@@ -138,8 +138,8 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "logt_ProvidersLog_01012023.json",
-						"container": "output-df"
+						"fileName": "logt_ProvidersLog_20230204.json",
+						"container": "output-df-logt-providerslog"
 					}
 				},
 				"schema": {}
@@ -829,7 +829,7 @@
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
-							"timeout": "0.12:00:00",
+							"timeout": "0.23:59:59",
 							"retry": 0,
 							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
@@ -848,7 +848,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "SqlMISource",
-								"sqlReaderQuery": "SELECT [Id]\r\n      ,[Service]\r\n      ,[TransactionId]\r\n      ,[Provider]\r\n      ,[Method]\r\n      ,[Request]\r\n      ,[Response]\r\n      ,[UserCreationId]\r\n      ,[CreationDate]\r\n      ,[UserLastModifiedId]\r\n      ,[DateLastModificationId]\r\n      ,[IsActive]\r\n      ,[Url_t]\r\n      ,[Headers_t]\r\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\nwhere [CreationDate] between \r\n\t(select top 1 [CreationDate]\r\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n\twhere id = 143451)\r\nAND\r\n\t(select dateadd(second, 86376, (select [CreationDate]\r\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\r\n\twhere id = 143451)))\r\n",
+								"sqlReaderQuery": "SELECT [Id]\n      ,[Service]\n      ,[TransactionId]\n      ,[Provider]\n      ,[Method]\n      ,[Request]\n      ,[Response]\n      ,[UserCreationId]\n      ,[CreationDate]\n      ,[UserLastModifiedId]\n      ,[DateLastModificationId]\n      ,[IsActive]\n      ,[Url_t]\n      ,[Headers_t]\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\nwhere [CreationDate] between \n\t(select top 1 [CreationDate]\n\tfrom [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 169227)\nAND\n\t(select dateadd(second, 55635, (select [CreationDate]\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 169227)))",
 								"partitionOption": "None"
 							},
 							"sink": {
