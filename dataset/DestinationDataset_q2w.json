@@ -1,0 +1,19 @@
+{
+	"name": "DestinationDataset_q2w",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_azurestoact",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "logt_ProvidersLog_01012023.json",
+				"container": "output-df"
+			}
+		},
+		"schema": {}
+	}
+}
