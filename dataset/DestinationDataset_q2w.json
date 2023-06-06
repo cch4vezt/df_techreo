@@ -11,8 +11,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": "logt_ProvidersLog_20230204.json",
-				"folderPath": "logt_ProvidersLog",
-				"container": "output-df"
+				"container": "output-df-logt-providerslog"
 			}
 		},
 		"schema": {}
