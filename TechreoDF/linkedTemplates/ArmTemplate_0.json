@@ -138,7 +138,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "logt_ProvidersLog_2023_02_final.json",
+						"fileName": "logt_ProvidersLog_2023_03_final.json",
 						"container": "output-df-logt-providerslog"
 					}
 				},
@@ -848,7 +848,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "SqlMISource",
-								"sqlReaderQuery": "SELECT [Id]\n      ,[Service]\n      ,[TransactionId]\n      ,[Provider]\n      ,[Method]\n      ,[Request]\n      ,[Response]\n      ,[UserCreationId]\n      ,[CreationDate]\n      ,[UserLastModifiedId]\n      ,[DateLastModificationId]\n      ,[IsActive]\n      ,[Url_t]\n      ,[Headers_t]\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\nwhere [CreationDate] between\n\t(\n\tselect dateadd(second, 2594653, (select [CreationDate]\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 159247))\n\t)\nAND\n\t(\n\tselect dateadd(second, 5013853, (select [CreationDate]\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 159247))\n\t)\n",
+								"sqlReaderQuery": "SELECT [Id]\n      ,[Service]\n      ,[TransactionId]\n      ,[Provider]\n      ,[Method]\n      ,[Request]\n      ,[Response]\n      ,[UserCreationId]\n      ,[CreationDate]\n      ,[UserLastModifiedId]\n      ,[DateLastModificationId]\n      ,[IsActive]\n      ,[Url_t]\n      ,[Headers_t]\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\nwhere [CreationDate] between\n\t(\n\tselect dateadd(second, 5013854, (select [CreationDate]\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 159247))\n\t)\nAND\n\t(\n\tselect dateadd(second, 7692254, (select [CreationDate]\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\twhere id = 159247))\n\t)",
 								"partitionOption": "None"
 							},
 							"sink": {
