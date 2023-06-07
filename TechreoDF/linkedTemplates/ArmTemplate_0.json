@@ -138,7 +138,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "logt_ProvidersLog_2023_01_final.json",
+						"fileName": "logt_ProvidersLog_2023_01_final_borrarDatos.json",
 						"container": "output-logt-providerslog-2023"
 					}
 				},
@@ -1009,6 +1009,49 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Delete_Data_perMonth",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "Copy_q2w",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "techreoprod",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "DELETE\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\tWHERE [CreationDate] between\n\t\t(\n\t\t\tSELECT cast('2023-01-01 00:00:00:000' as datetime)\n\t\t)\t\n\tAND\n\t\t(\n\t\t\tSELECT dateadd(millisecond, -2, dateadd(day, 31, cast('2023-01-01 00:00:00:000' as datetime)))\n\t\t)"
+								}
+							],
+							"scriptBlockExecutionTimeout": "04:00:00",
+							"logSettings": {
+								"logDestination": "ExternalStore",
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "linkedService_azurestoact",
+										"type": "LinkedServiceReference"
+									},
+									"path": "output-logt-providerslog-2023"
+								}
+							}
+						}
 					}
 				],
 				"policy": {
@@ -1019,7 +1062,9 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SourceDataset_q2w')]",
-				"[concat(variables('factoryId'), '/datasets/DestinationDataset_q2w')]"
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_q2w')]",
+				"[concat(variables('factoryId'), '/linkedServices/techreoprod')]",
+				"[concat(variables('factoryId'), '/linkedServices/linkedService_azurestoact')]"
 			]
 		},
 		{
