@@ -27,7 +27,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlMISource",
-						"sqlReaderQuery": "SELECT [Id]\n      ,[Service]\n      ,[TransactionId]\n      ,[Provider]\n      ,[Method]\n      ,[Request]\n      ,[Response]\n      ,[UserCreationId]\n      ,[CreationDate]\n      ,[UserLastModifiedId]\n      ,[DateLastModificationId]\n      ,[IsActive]\n      ,[Url_t]\n      ,[Headers_t]\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\nwhere [CreationDate] between\n\t(\n\tselect cast('2023-02-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 28, cast('2023-02-01 00:00:00:000' as datetime)))\n\t)\norder by [Id] asc, [CreationDate] asc",
+						"sqlReaderQuery": "SELECT [Id]\n      ,[Service]\n      ,[TransactionId]\n      ,[Provider]\n      ,[Method]\n      ,[Request]\n      ,[Response]\n      ,[UserCreationId]\n      ,[CreationDate]\n      ,[UserLastModifiedId]\n      ,[DateLastModificationId]\n      ,[IsActive]\n      ,[Url_t]\n      ,[Headers_t]\nFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\nwhere [CreationDate] between\n\t(\n\tselect cast('2023-03-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 31, cast('2023-03-01 00:00:00:000' as datetime)))\n\t)\norder by [Id] asc, [CreationDate] asc",
 						"partitionOption": "None"
 					},
 					"sink": {
@@ -214,7 +214,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "\tBEGIN TRANSACTION;  \n\tDELETE\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\tWHERE [CreationDate] between\n\t(\n\tselect cast('2023-02-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 28, cast('2023-02-01 00:00:00:000' as datetime)))\n\t)\n\tCOMMIT TRANSACTION;  \n"
+							"text": "\tBEGIN TRANSACTION;  \n\tDELETE\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\tWHERE [CreationDate] between\n\t\t(\n\tselect cast('2023-03-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 31, cast('2023-03-01 00:00:00:000' as datetime)))\n\t)\n\n\tCOMMIT TRANSACTION;  "
 						}
 					],
 					"scriptBlockExecutionTimeout": "04:00:00",
