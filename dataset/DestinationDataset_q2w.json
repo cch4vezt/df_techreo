@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "logt_ProvidersLog_20230205-20230212.json",
+				"fileName": "logt_ProvidersLog_2023_01.json",
 				"container": "output-df-logt-providerslog"
 			}
 		},
