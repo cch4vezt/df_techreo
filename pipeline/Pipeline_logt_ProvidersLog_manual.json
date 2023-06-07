@@ -214,7 +214,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "\tBEGIN TRANSACTION;  \n\tDELETE\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\tWHERE [CreationDate] between\n\t\t(\n\tselect cast('2023-03-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 31, cast('2023-03-01 00:00:00:000' as datetime)))\n\t)\n\n\tCOMMIT TRANSACTION;  "
+							"text": "\tBEGIN TRANSACTION;  \n\tDELETE\n\tFROM [Cmn_Log].[dbo].[logt_ProvidersLog]\n\tWHERE [CreationDate] between\n\t(\n\tselect cast('2023-04-01 00:00:00:000' as datetime)\n\t)\nand\n\t(\n\tselect dateadd(millisecond, -2, dateadd(day, 30, cast('2023-04-01 00:00:00:000' as datetime)))\n\t)\n\n\tCOMMIT TRANSACTION;  "
 						}
 					],
 					"scriptBlockExecutionTimeout": "04:00:00",
